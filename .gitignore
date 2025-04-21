@@ -1,0 +1,10 @@
+venv/
+.env
+.brownie
+__pycache__/
+*.pyc
+.DS_Store
+.idea/
+build/
+
+

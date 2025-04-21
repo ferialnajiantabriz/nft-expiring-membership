@@ -1,0 +1,4 @@
+eth-brownie
+web3
+pytest
+python-dotenv

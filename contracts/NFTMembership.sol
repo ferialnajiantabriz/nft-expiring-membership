@@ -3,19 +3,22 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 /**
  * @title NFTMembership
  * @dev A time-based NFT membership with expiration logic.
  */
-contract NFTMembership is ERC721, Ownable {
+contract NFTMembership is ERC721, Ownable, AccessControl {
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+
     // Next tokenId tracker
     uint256 private _currentTokenId;
 
     // Mapping tokenId -> expiration timestamp
     mapping(uint256 => uint256) public validUntil;
 
-    // Price to mint or renew membership (you can adapt this)
+    // Price to mint or renew membership
     uint256 public membershipPrice;
 
     // Event to log membership renewals
@@ -26,7 +29,8 @@ contract NFTMembership is ERC721, Ownable {
         string memory symbol_,
         uint256 initialPrice
     ) ERC721(name_, symbol_) {
-        membershipPrice = initialPrice; 
+        membershipPrice = initialPrice;
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     /**
@@ -65,19 +69,38 @@ contract NFTMembership is ERC721, Ownable {
         external
         payable
     {
+        // Only the token owner can renew
         require(ownerOf(tokenId) == msg.sender, "Not token owner");
+
+        // Payment check
         require(msg.value >= membershipPrice, "Insufficient payment");
+
+        // Must not be expired
         require(isValid(tokenId), "Membership expired, cannot renew");
 
+        // Extend expiration
         validUntil[tokenId] += additionalTime;
+
         emit MembershipRenewed(tokenId, validUntil[tokenId]);
     }
 
     /**
-     * @dev Set a new membership price (only the contract owner can call).
+     * @dev Set a new membership price. Only an address with ADMIN_ROLE can call this.
      */
-    function setMembershipPrice(uint256 newPrice) external onlyOwner {
+    function setMembershipPrice(uint256 newPrice) external {
+        require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not an admin");
         membershipPrice = newPrice;
     }
-}
 
+    /**
+     * @dev Overriding supportsInterface to handle multiple inheritance from ERC721 & AccessControl.
+     */
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, AccessControl)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
+}

@@ -6,6 +6,9 @@ compiler:
     remappings:
       - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.8.0"
 
+dependencies:
+  - OpenZeppelin/openzeppelin-contracts@4.8.0
+
 networks:
   default: development
   development:

@@ -14,3 +14,7 @@ networks:
   development:
     gas_limit: auto
 
+  sepolia:
+    host: "https://sepolia.infura.io/v3/$WEB3_INFURA_PROJECT_ID"
+    chainid: 11155111
+    gas_limit: auto

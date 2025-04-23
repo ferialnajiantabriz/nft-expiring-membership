@@ -1,13 +1,14 @@
-## Specific Use Case & Gap
+## Use Case: Monthly Online Study Group
 
-We target **campus organizations**—for example, a university CS club—that need 
-lightweight, monthly digital passes for exclusive events, lab access, or member-only
-resources. They require:
-- **Zero-infrastructure** on the club’s side: no backend server to maintain.
-- **On-chain transparency**: members and organizers can verify payments and expirations.
-- **Gasless renewals**: many students lack ETH; they can renew via meta-transactions.
-- **Fiat-pegged pricing**: pay in stablecoins (e.g., USDC) to avoid ETH volatility.
+Alice runs a small online study group with ~20 members. Each member needs to pay 
+a monthly fee (0.01 ETH) to access premium content and weekly Zoom discussions. 
+By issuing an NFT with a 30-day expiration, the group ensures only active, 
+paying members can join. After 30 days, the NFT expires, and the member must 
+renew on-chain to keep participating.
 
-No existing solution offers this exact combination—our contract is **minimal**,  
-**fully on-chain**, and **auditable** for non-technical student groups.
+## Motivation
+Large protocols like Unlock often require more complex setups and can be overkill for 
+small communities. This project aims to be a lightweight, auditable solution 
+that is fully self-contained. It’s ideal for groups of 5–100 members who need 
+on-chain proofs of membership without the overhead of big subscription platforms.
 

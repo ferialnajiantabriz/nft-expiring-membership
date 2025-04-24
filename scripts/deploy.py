@@ -1,18 +1,29 @@
-from brownie import NFTMembership, accounts, network, config
-from dotenv import load_dotenv
 import os
+from brownie import NFTMembership, accounts, network, config
 
 def main():
-    load_dotenv()  # loads variables from .env
-    private_key = os.getenv("PRIVATE_KEY")
+    # Option A: Load Brownie account by alias
+    deployer = accounts.load("myDeployerAccount")
+    
+    # Option B: Alternatively, add private key from env variable
+    # deployer = accounts.add(os.getenv("PRIVATE_KEY"))
 
-    account = accounts.add(private_key)
+    forwarder_address = "0x497b11C99CB77920EFC63e4a5D7396B3709BcDB3"
 
-    nft_contract = NFTMembership.deploy(
-        "MembershipPass",
-        "MBR",
-        10**16,  # 0.01 ETH
-        {"from": account},
-        publish_source=False  # or True if verifying on Etherscan
+    # Example: membershipPrice = 0.01 ETH => 10**16 wei
+    membershipPrice = 10**16  # 0.01 ETH in Wei
+
+    # Typical transaction parameters
+    tx_params = {"from": deployer, "gas_limit": 3_000_000, "allow_revert": True}
+
+    # Deploy
+    deployed_contract = NFTMembership.deploy(
+        "MembershipPass",     # _name
+        "MBR",                # _symbol
+        membershipPrice,      # initialPrice
+        forwarder_address,    # forwarder
+        tx_params
     )
-    print(f"Deployed at: {nft_contract.address}")
+
+    print(f"NFTMembership deployed at: {deployed_contract.address}")
+

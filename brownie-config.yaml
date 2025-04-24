@@ -1,20 +1,5 @@
-dotenv: .env
-
 compiler:
   solc:
-    version: "0.8.17"
     remappings:
-      - "@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.8.0"
+      - '@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.8.0'
 
-dependencies:
-  - OpenZeppelin/openzeppelin-contracts@4.8.0
-
-networks:
-  default: development
-  development:
-    gas_limit: auto
-
-  sepolia:
-    host: "https://sepolia.infura.io/v3/$WEB3_INFURA_PROJECT_ID"
-    chainid: 11155111
-    gas_limit: auto

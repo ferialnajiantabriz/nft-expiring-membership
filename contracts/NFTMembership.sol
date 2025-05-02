@@ -8,33 +8,33 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 /**
  * @title NFTMembership
  * @dev An ERC721-based membership token with an expiration date. It uses AccessControl
- * for admin management and supports meta-transactions by trusting a forwarder address.
+ * for admin management and supports meta-transactions via a trusted forwarder (EIP-2771).
  */
 contract NFTMembership is ERC721, AccessControl {
-    // Use a custom role identifier
+    // Custom role for managing pricing and admin tasks
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
-    // Maps each tokenId to its expiration timestamp
+    // Tracks membership expiration timestamps
     mapping(uint256 => uint256) public validUntil;
 
-    // The price for minting or renewing a membership (in Wei)
+    // Price to mint or renew (in Wei)
     uint256 public membershipPrice;
 
-    // Tracks the next token ID to mint
+    // Token ID counter
     uint256 private _tokenIdCounter;
 
-    // Emitted when a membership is renewed
-    event MembershipRenewed(uint256 indexed tokenId, uint256 newExpiry);
-
-    // The forwarder permitted to call metaRenewMembership (if you use EIP-2771 meta-transactions)
+    // Meta-transaction trusted forwarder
     address public trustedForwarder;
 
+    // Event for successful renewals
+    event MembershipRenewed(uint256 indexed tokenId, uint256 newExpiry);
+
     /**
-     * @dev Constructor sets up initial roles, price, and forwarder.
-     * @param name_ The ERC721 name, e.g., "MembershipPass"
-     * @param symbol_ The ERC721 symbol, e.g., "MBR"
-     * @param initialPrice The initial membership price in Wei
-     * @param forwarder The address of the trusted forwarder for meta-transactions
+     * @dev Constructor: sets up initial roles and parameters.
+     * @param name_ Token name (e.g., "MembershipPass")
+     * @param symbol_ Token symbol (e.g., "MBR")
+     * @param initialPrice Initial membership price in Wei
+     * @param forwarder Address of EIP-2771 forwarder
      */
     constructor(
         string memory name_,
@@ -42,6 +42,7 @@ contract NFTMembership is ERC721, AccessControl {
         uint256 initialPrice,
         address forwarder
     ) ERC721(name_, symbol_) {
+        // Grant full control to deployer
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(ADMIN_ROLE, msg.sender);
 
@@ -50,7 +51,7 @@ contract NFTMembership is ERC721, AccessControl {
     }
 
     /**
-     * @dev Required override since both ERC721 and AccessControl define supportsInterface().
+     * @dev OpenZeppelin required override for AccessControl + ERC721
      */
     function supportsInterface(bytes4 interfaceId)
         public
@@ -63,26 +64,38 @@ contract NFTMembership is ERC721, AccessControl {
     }
 
     /**
-     * @dev Check if a given forwarder is our trusted forwarder. Used in EIP-2771 flow.
-     * @param forwarder The address we want to verify
+     * @dev EIP-2771: checks if caller is a trusted forwarder
      */
     function isTrustedForwarder(address forwarder) public view virtual returns (bool) {
         return forwarder == trustedForwarder;
     }
 
     /**
-     * @dev Allows an admin to update the membership price.
-     * @param newPrice The new price in Wei
+     * @dev Admin-only: sets a new price for mint/renew
+     * @param newPrice New membership price in Wei
      */
     function setMembershipPrice(uint256 newPrice) external onlyRole(ADMIN_ROLE) {
         membershipPrice = newPrice;
     }
 
     /**
-     * @dev Mints a new membership NFT with an expiration of (now + durationInSeconds).
-     * Requires `msg.value` >= membershipPrice.
-     * @param recipient The address to receive the new NFT
-     * @param durationInSeconds How long (in seconds) before the membership expires
+     * @dev Admin-only: grant ADMIN_ROLE to an address
+     */
+    function grantAdminRole(address account) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        grantRole(ADMIN_ROLE, account);
+    }
+
+    /**
+     * @dev Admin-only: revoke ADMIN_ROLE from an address
+     */
+    function revokeAdminRole(address account) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        revokeRole(ADMIN_ROLE, account);
+    }
+
+    /**
+     * @dev Mints a new membership NFT for `recipient`.
+     * @param recipient Address receiving the NFT
+     * @param durationInSeconds Time before expiry (in seconds)
      */
     function mintMembership(address recipient, uint256 durationInSeconds) external payable {
         require(msg.value >= membershipPrice, "Insufficient payment");
@@ -95,17 +108,15 @@ contract NFTMembership is ERC721, AccessControl {
     }
 
     /**
-     * @dev Renews a membership by extending its validUntil.
-     * Requires `msg.value` >= membershipPrice.
-     * @param tokenId The token to renew
-     * @param additionalSeconds How many extra seconds to add
+     * @dev Renews an existing membership token.
+     * @param tokenId Token to renew
+     * @param additionalSeconds Time to extend
      */
     function renewMembership(uint256 tokenId, uint256 additionalSeconds) external payable {
         require(msg.value >= membershipPrice, "Insufficient payment");
         require(ownerOf(tokenId) == msg.sender, "Not token owner");
 
         uint256 currentExpiry = validUntil[tokenId];
-        // If the membership is already expired, restart from now
         if (block.timestamp > currentExpiry) {
             currentExpiry = block.timestamp;
         }
@@ -117,11 +128,7 @@ contract NFTMembership is ERC721, AccessControl {
     }
 
     /**
-     * @dev Called by the trusted forwarder only. Allows gasless renewal for the `realUser`.
-     * Off-chain, the user signs a message, and the forwarder pays the gas to call this function.
-     * @param tokenId The token to renew
-     * @param additionalSeconds Extra time in seconds to add
-     * @param realUser The real user who owns the token
+     * @dev Allows relayer to submit a gasless renewal using EIP-2771
      */
     function metaRenewMembership(
         uint256 tokenId,
@@ -143,11 +150,10 @@ contract NFTMembership is ERC721, AccessControl {
     }
 
     /**
-     * @dev EIP-2771 override: returns the real sender of this call if it came through a trusted forwarder.
+     * @dev EIP-2771: Override msg.sender if forwarded
      */
     function _msgSender() internal view override returns (address sender) {
         if (isTrustedForwarder(msg.sender)) {
-            // The last 20 bytes of msg.data is the address of the real sender appended by forwarder
             assembly {
                 sender := shr(96, calldataload(sub(calldatasize(), 20)))
             }
@@ -157,7 +163,7 @@ contract NFTMembership is ERC721, AccessControl {
     }
 
     /**
-     * @dev EIP-2771 override: returns the real msg.data if it came through a trusted forwarder.
+     * @dev EIP-2771: Override msg.data if forwarded
      */
     function _msgData() internal view override returns (bytes calldata) {
         if (isTrustedForwarder(msg.sender)) {

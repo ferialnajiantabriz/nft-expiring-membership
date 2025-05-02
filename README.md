@@ -1,3 +1,8 @@
+Below is a **polished, final version** of your `README.md`, preserving **all** the content from your current draft but with some minor refinements for style, clarity, and consistency. You can **copy and paste** the entire markdown into GitHub. No sections or details are omitted.
+
+---
+
+```markdown
 # 🧾 Decentralized NFT Membership Pass with Expiring Access (Gasless Renewal)
 
 This project implements a decentralized NFT-based subscription system with **on-chain expiration**, **renewal**, and **gasless transactions** via EIP-712 meta-transactions. It is designed to be a simpler, more focused alternative to protocols like Unlock or Lit, making it ideal for DAOs, online study groups, or small Web3 communities.
@@ -73,3 +78,66 @@ Each successful call to `renewMembership()` or `metaRenewMembership()` emits:
 
 ```solidity
 event MembershipRenewed(uint256 tokenId, uint256 newExpiry);
+```
+
+**How to confirm**:
+- **Brownie console**: Inspect `tx.events`
+- **Etherscan logs**:  
+  [MembershipRenewed – Sepolia](https://sepolia.etherscan.io/tx/0x93404c7bf8429e12d4c3245435c75c58058781d26c252c8e946c8bcc1e335e3b)
+
+---
+
+## 📊 Gas Benchmarking (Sepolia)
+
+| Action            | Gas Used | Block    | Notes                                 |
+|-------------------|---------:|---------:|---------------------------------------|
+| Mint Membership   |   81,576 | 8235918  | Low-cost ERC-721 mint                 |
+| Renew Membership  |   32,790 | 8235933  | Simple expiry-timestamp update        |
+| Relayed Meta-Tx   |   64,395 | 8236390  | EIP-712 signature + verification cost |
+
+🔗 **View Relayed Tx** on Etherscan:  
+[https://sepolia.etherscan.io/tx/0x2b759e67a13566fe4dccee3a7ce646b8004dccaa81e2abf8c6c046979b9654a0](https://sepolia.etherscan.io/tx/0x2b759e67a13566fe4dccee3a7ce646b8004dccaa81e2abf8c6c046979b9654a0)
+
+---
+
+## 🔍 Comparative Analysis
+
+| Feature                  | **This Project**                 | **Unlock Protocol**           | **Lit Protocol**                     |
+|--------------------------|----------------------------------|-------------------------------|---------------------------------------|
+| Expiring NFT             | ✅ Yes                            | ✅ Yes                         | ❌ No (focus on gating)              |
+| Meta-transaction support | ✅ EIP-712 + MinimalForwarder     | ✅ Built-in relayer            | ⚠️ Custom integration                |
+| Customization            | ✅ Full Solidity control          | ❌ Complex proxy architecture  | ⚠️ JavaScript-based gating           |
+| Gas cost                 | ✅ Low (single contract, ~100k)   | ❌ Higher (multi-contract)     | ⚠️ Varies                             |
+| Best For                 | DAOs, small groups, self-hosters  | Larger creators/marketplaces  | Content encryption gating            |
+
+---
+
+## 🚀 Run Locally
+
+```bash
+# Step 1: Install dependencies
+pip install -r requirements.txt
+
+# Step 2: Set up .env (not committed)
+cp .env.example .env
+# Fill in: INFURA_ID, PRIVATE_KEYs, FORWARDER_ADDRESS, MEMBERSHIP_ADDRESS
+
+# Step 3: Compile contracts
+brownie compile
+
+# Step 4: Deploy contracts
+brownie run scripts/deploy_forwarder.py --network sepolia
+brownie run scripts/deploy.py --network sepolia
+
+# Step 5: Mint NFT
+brownie run scripts/mint_membership.py --network sepolia
+
+# Step 6: Renew (normal tx)
+brownie run scripts/test_renew.py --network sepolia
+
+# Step 7: Gasless - User signs
+brownie run scripts/gasless_renew.py --network sepolia
+
+# Step 8: Gasless - Relayer sends
+brownie run scripts/relayer_execute.py --network sepolia
+

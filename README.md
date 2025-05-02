@@ -1,8 +1,4 @@
-Below is a **polished, final version** of your `README.md`, preserving **all** the content from your current draft but with some minor refinements for style, clarity, and consistency. You can **copy and paste** the entire markdown into GitHub. No sections or details are omitted.
 
----
-
-```markdown
 # 🧾 Decentralized NFT Membership Pass with Expiring Access (Gasless Renewal)
 
 This project implements a decentralized NFT-based subscription system with **on-chain expiration**, **renewal**, and **gasless transactions** via EIP-712 meta-transactions. It is designed to be a simpler, more focused alternative to protocols like Unlock or Lit, making it ideal for DAOs, online study groups, or small Web3 communities.

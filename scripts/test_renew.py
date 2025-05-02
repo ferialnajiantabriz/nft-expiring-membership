@@ -11,4 +11,5 @@ def main():
     tx.wait(1)
 
     print("✅ Membership renewed.")
-
+# ⬇️ Print the event emitted
+    print("Events:", tx.events)

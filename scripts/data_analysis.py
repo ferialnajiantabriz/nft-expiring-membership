@@ -16,15 +16,11 @@ def main():
         brownie run scripts/data_analysis.py --network sepolia
     """
 
-    # --------------------------------------------------------------------------
     # 1. Confirm active network
-    # --------------------------------------------------------------------------
     active_net = network.show_active()
     print(f"\n🔗 Connected to network: {active_net}")
 
-    # --------------------------------------------------------------------------
     # 2. Set your deployed NFTMembership contract address
-    # --------------------------------------------------------------------------
     nft_membership_address = "0xAaf086EC89D311f3fcAB1B17A735d4c8D746DFcF"  # Replace with your deployed address
 
     try:
@@ -34,9 +30,7 @@ def main():
         print(f"❌ Failed to load contract: {e}")
         return
 
-    # --------------------------------------------------------------------------
     # 3. Define block range to scan
-    # --------------------------------------------------------------------------
     web3 = network.web3
     latest_block = web3.eth.block_number
     lookback = 5000
@@ -44,18 +38,14 @@ def main():
 
     print(f"🔍 Searching for 'MembershipRenewed' events from block {from_block} to {latest_block}...")
 
-    # --------------------------------------------------------------------------
     # 4. Fetch events using camelCase (Brownie v1.20.7)
-    # --------------------------------------------------------------------------
     try:
         events = nft.events.MembershipRenewed.get_logs(fromBlock=from_block, toBlock=latest_block)
     except Exception as e:
         print(f"❌ Could not fetch events: {e}")
         return
 
-    # --------------------------------------------------------------------------
     # 5. Print results
-    # --------------------------------------------------------------------------
     if not events:
         print("⚠️ No 'MembershipRenewed' events found.")
         return

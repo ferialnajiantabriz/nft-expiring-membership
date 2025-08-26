@@ -127,7 +127,7 @@ event MembershipRenewed(uint256 tokenId, uint256 newExpiry);
 
 ---
 
-## 📊 Gas Benchmarking (Sepolia)
+## Gas Benchmarking (Sepolia)
 
 | Action           | Gas Used |   Block | Notes                              |
 | ---------------- | -------: | ------: | ---------------------------------- |

@@ -1,11 +1,11 @@
 
 #  Decentralized NFT Membership Pass with Expiring Access (Gasless Renewal)
 
-## 📽️ Project Demo Video
+##  Project Demo Video
 
 Watch the 17-minute demo explaining the project goals, approach, and key features:
 
-▶️ [Watch on YouTube](https://youtu.be/Bupw9KAw7IM)
+▶ [Watch on YouTube](https://youtu.be/Bupw9KAw7IM)
 
 *Note: This video demonstrates the prototype and key outcomes of the project.*
 
@@ -13,9 +13,9 @@ Watch the 17-minute demo explaining the project goals, approach, and key feature
 
 This project implements a decentralized NFT-based subscription system with:
 
-- ✅ On-chain expiration
-- ✅ On-chain and gasless renewals via EIP-712 meta-transactions
-- ✅ Role-Based Access Control (RBAC) for secure admin-only logic
+- On-chain expiration
+-  On-chain and gasless renewals via EIP-712 meta-transactions
+- Role-Based Access Control (RBAC) for secure admin-only logic
 
 It is a **lightweight alternative** to complex protocols like Unlock or Lit Protocol and is ideal for small DAOs, student organizations, gated communities, or Web3-based learning platforms.
 
@@ -144,13 +144,13 @@ event MembershipRenewed(uint256 tokenId, uint256 newExpiry);
 
 | Feature               | **This Project**        | **Unlock Protocol**       | **Lit Protocol**             |
 | --------------------- | ----------------------- | ------------------------- | ---------------------------- |
-| Expiring NFT          | ✅ Yes                   | ✅ Yes                     | ❌ No (gating only)           |
-| Meta-Tx support       | ✅ EIP-712 + EIP-2771    | ✅ With relayer            | ⚠️ SDK-based only            |
-| Upgradeable Contracts | ❌ No                    | ✅ Yes (Proxy)             | ❌ No                         |
-| Factory Complexity    | ❌ None                  | ✅ Required                | ❌ Not applicable             |
-| Custom Admin Roles    | ✅ Yes (RBAC)            | ⚠️ Advanced use only      | ❌ No roles                   |
-| Gas Cost              | ✅ Low (\~80k–100k)      | ❌ Higher                  | ⚠️ Varies                    |
-| Best Use Case         | DAOs, clubs, classrooms | Marketplaces, paid access | Token-gated document sharing |
+| Expiring NFT          |  Yes                   |  Yes                       | No (gating only)             |
+| Meta-Tx support       |  EIP-712 + EIP-2771    |  With relayer              |  SDK-based only              |
+| Upgradeable Contracts |  No                    |  Yes (Proxy)               |  No                          |
+| Factory Complexity    |  None                  |  Required                  |  Not applicable              |
+| Custom Admin Roles    |  Yes (RBAC)            |  Advanced use only         |  No roles                    |
+| Gas Cost              |  Low (\~80k–100k)      |  Higher                    |  Varies                      |
+| Best Use Case         | DAOs, clubs, classrooms| Marketplaces, paid access  | Token-gated document sharing |
 
 ---
 
